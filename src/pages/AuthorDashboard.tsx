@@ -10,7 +10,7 @@ export default function AuthorDashboard() {
 
   // 🔥 FETCH BOOKS
   useEffect(() => {
-    fetch("https://ebook-fmjq.onrender.com/api/admin/books")
+    fetch("http://localhost:3000/api/admin/books")
       .then(res => res.json())
       .then(data => setBooks(data))
       .catch(err => console.error(err));
@@ -18,7 +18,7 @@ export default function AuthorDashboard() {
 
   // 🔥 FETCH SALES
   useEffect(() => {
-    fetch("https://ebook-fmjq.onrender.com/api/sales")
+    fetch("http://localhost:3000/api/sales")
       .then(res => res.json())
       .then(data => setSales(data))
       .catch(err => console.error(err));
@@ -67,7 +67,7 @@ export default function AuthorDashboard() {
               className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition"
             >
               <img
-                src={`https://ebook-fmjq.onrender.com/${b.cover || "uploads/default.jpg"}`}
+                src={`http://localhost:3000/${b.cover || "uploads/default.jpg"}`}
                 className="w-full h-40 object-cover rounded mb-2"
               />
 

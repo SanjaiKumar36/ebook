@@ -11,7 +11,7 @@ export default function Library() {
   }, []);
 
   const fetchBooks = async () => {
-    const res = await fetch("https://ebook-fmjq.onrender.com/api/books");
+    const res = await fetch("http://localhost:3000/api/books");
     const data = await res.json();
     setBooks(data);
 
@@ -64,7 +64,7 @@ export default function Library() {
               {/* COVER */}
               <div className="overflow-hidden rounded-t-2xl">
                 <img
-                  src={`https://ebook-fmjq.onrender.com/${b.cover}`}
+                  src={`http://localhost:3000/${b.cover}`}
                   className="w-full h-56 object-cover group-hover:scale-105 transition"
                 />
               </div>

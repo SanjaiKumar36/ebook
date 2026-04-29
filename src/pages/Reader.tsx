@@ -44,7 +44,7 @@ useEffect(() => {
 }, []);
 
   useEffect(() => {
-    fetch("https://ebook-fmjq.onrender.com/api/books")
+    fetch("http://localhost:3000/api/books")
       .then(res => res.json())
       .then(data => {
         const found = data.find((b: any) => b.id == id);
@@ -64,7 +64,7 @@ useEffect(() => {
 
       {/* PDF VIEW */}
       <iframe
-        src={`https://ebook-fmjq.onrender.com/${book.file}`}
+        src={`http://localhost:3000/${book.file}`}
         className="w-full h-[90vh]"
       />
 
