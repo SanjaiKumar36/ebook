@@ -83,7 +83,15 @@ const apiRouter = express.Router();
 // ================= AUTHOR APPLY (🔥 FIXED WITH UID) =================
 apiRouter.post("/author/apply", (req, res) => {
   try {
-    const { name, bio, category, experience, uid } = req.body;
+    const name = req.body.name;
+const bio = req.body.bio;
+const category = req.body.category;
+const experience = req.body.experience;
+const uid = req.body.uid;
+
+if (!uid) {
+  return res.status(400).json({ error: "UID missing ❌" });
+}
 
     if (!name || !bio || !category || !experience || !uid) {
       return res.status(400).json({ error: "Missing fields" });
