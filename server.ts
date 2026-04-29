@@ -98,7 +98,7 @@ apiRouter.post("/author/apply", (req, res) => {
       bio,
       category,
       experience,
-      photo: req.file ? req.file.path : "no-image",
+      photo:  "no-image",
       status: "pending",
     });
 
