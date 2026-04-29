@@ -16,7 +16,7 @@ export default function BookDetails() {
 
   // 🔥 FETCH BOOK
   useEffect(() => {
-    fetch("http://localhost:3000/api/books")
+    fetch("https://ebook-fmjq.onrender.com/api/books")
       .then(res => res.json())
       .then(data => {
         const found = data.find((b: any) => b.id == id);
@@ -28,7 +28,7 @@ export default function BookDetails() {
 
   // 🔥 FETCH REVIEWS
   const loadReviews = async () => {
-    const res = await fetch("http://localhost:3000/api/reviews/" + id);
+    const res = await fetch("https://ebook-fmjq.onrender.com/api/reviews/" + id);
     const data = await res.json();
     setReviews(data);
   };
@@ -44,7 +44,7 @@ export default function BookDetails() {
       return;
     }
 
-    await fetch("http://localhost:3000/api/reviews", {
+    await fetch("https://ebook-fmjq.onrender.com/api/reviews", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -67,7 +67,7 @@ export default function BookDetails() {
   const handleBuy = async () => {
     if (!book) return;
 
-    const res = await fetch("http://localhost:3000/api/create-order", {
+    const res = await fetch("https://ebook-fmjq.onrender.com/api/create-order", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -114,7 +114,7 @@ export default function BookDetails() {
         <div className="sticky top-32">
           <div className="bg-white p-6 rounded-2xl shadow">
             <img
-              src={`http://localhost:3000/${book.cover}`}
+              src={`https://ebook-fmjq.onrender.com/${book.cover}`}
               className="w-full h-[450px] object-cover rounded-xl"
             />
           </div>

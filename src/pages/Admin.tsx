@@ -29,8 +29,8 @@ export default function Admin() {
   const fetchData = async () => {
     try {
       const [aRes, bRes] = await Promise.all([
-        fetch("http://localhost:3000/api/admin/authors"),
-        fetch("http://localhost:3000/api/admin/books"),
+        fetch("https://ebook-fmjq.onrender.com/api/admin/authors"),
+        fetch("https://ebook-fmjq.onrender.com/api/admin/books"),
       ]);
 
       const authorsData = await aRes.json();
@@ -47,7 +47,7 @@ export default function Admin() {
 
   // ✅ APPROVE AUTHOR
   const approveAuthor = async (id: number) => {
-    await fetch(`http://localhost:3000/api/admin/approve-author/${id}`, {
+    await fetch(`https://ebook-fmjq.onrender.com/api/admin/approve-author/${id}`, {
       method: "POST",
     });
 
@@ -60,7 +60,7 @@ export default function Admin() {
 
   // ✅ APPROVE BOOK
   const approveBook = async (id: number) => {
-    await fetch(`http://localhost:3000/api/admin/approve-book/${id}`, {
+    await fetch(`https://ebook-fmjq.onrender.com/api/admin/approve-book/${id}`, {
       method: "POST",
     });
 
@@ -94,7 +94,7 @@ export default function Admin() {
             className="bg-white p-5 rounded-2xl shadow text-center hover:shadow-lg transition"
           >
             <img
-              src={`http://localhost:3000/${a.photo}`}
+              src={`https://ebook-fmjq.onrender.com/${a.photo}`}
               onError={(e) =>
                 ((e.target as HTMLImageElement).src =
                   "https://via.placeholder.com/100")
@@ -143,7 +143,7 @@ export default function Admin() {
 
             {/* COVER */}
             <img
-              src={`http://localhost:3000/${b.cover}`}
+              src={`https://ebook-fmjq.onrender.com/${b.cover}`}
               onError={(e) =>
                 ((e.target as HTMLImageElement).src =
                   "https://via.placeholder.com/150x200")
@@ -173,7 +173,7 @@ export default function Admin() {
             {/* 🔥 PREVIEW PDF */}
             {b.file && (
               <a
-                href={`http://localhost:3000/${b.file}`}
+                href={`https://ebook-fmjq.onrender.com/${b.file}`}
                 target="_blank"
                 className="block mt-3 text-blue-500 underline"
               >

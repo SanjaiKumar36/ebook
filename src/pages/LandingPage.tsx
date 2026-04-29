@@ -81,7 +81,7 @@ const LandingPage: React.FC = () => {
             transition={{ delay: 1, duration: 2 }}
             className="mt-12 text-brand-dark/20 font-display font-medium text-lg italic tracking-widest max-w-2xl mx-auto"
           >
-            "கற்க கசடற கற்பவை கற்பின் நிற்க அதற்குத் தக."
+            "கற்க கசடற கற்பவை கற்பின் <br /> நிற்க அதற்குத் தக."
           </motion.div>
 
           <motion.div 

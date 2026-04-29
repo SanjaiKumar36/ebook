@@ -18,7 +18,7 @@ export default function UploadBook() {
     formData.append("file", file);
     formData.append("cover", cover);
 
-    const res = await fetch("http://localhost:3000/api/upload-book", {
+    const res = await fetch("https://ebook-fmjq.onrender.com/api/upload-book", {
       method: "POST",
       body: formData,
     });

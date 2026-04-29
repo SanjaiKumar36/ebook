@@ -25,7 +25,7 @@ export default function BecomeAuthor() {
         formData.append("photo", photo);
       }
 
-      const res = await fetch("http://localhost:3000/api/author/apply", {
+      const res = await fetch("https://ebook-fmjq.onrender.com/api/author/apply", {
         method: "POST",
         body: formData,
       });

@@ -76,7 +76,7 @@ const Footer: React.FC = () => {
                 © 2026 ZippyBooks. Read Smarter. Learn Faster.
               </p>
               <p className="text-[10px] font-medium text-brand-dark/10 italic">
-                "கற்க கசடற கற்பவை கற்பின் நிற்க அதற்குத் தக."
+                "கற்க கசடற கற்பவை கற்பின் <br /> நிற்க அதற்குத் தக."
               </p>
            </div>
            <div className="flex gap-8 text-[10px] font-bold text-brand-dark/20 uppercase tracking-[0.3em]">

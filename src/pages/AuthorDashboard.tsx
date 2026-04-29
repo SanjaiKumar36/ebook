@@ -9,7 +9,7 @@ export default function AuthorDashboard() {
 
   // 🔥 FETCH BOOKS
   useEffect(() => {
-    fetch("http://localhost:3000/api/admin/books")
+    fetch("https://ebook-fmjq.onrender.com/api/admin/books")
       .then(res => res.json())
       .then(data => setBooks(data))
       .catch(err => console.error(err));
@@ -17,14 +17,14 @@ export default function AuthorDashboard() {
 
   // 🔥 FETCH SALES
   useEffect(() => {
-    fetch("http://localhost:3000/api/sales")
+    fetch("https://ebook-fmjq.onrender.com/api/sales")
       .then(res => res.json())
       .then(data => setSales(data))
       .catch(err => console.error(err));
   }, []);
 
 useEffect(() => {
-  fetch("http://localhost:3000/api/authors")
+  fetch("https://ebook-fmjq.onrender.com/api/authors")
     .then(res => res.json())
     .then(data => {
       if (data.length > 0) {
@@ -35,7 +35,7 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
-  fetch("http://localhost:3000/api/authors")
+  fetch("https://ebook-fmjq.onrender.com/api/authors")
     .then(res => res.json())
     .then(data => {
       console.log("AUTHORS:", data);
@@ -99,7 +99,7 @@ useEffect(() => {
             >
 
               <img
-                src={`http://localhost:3000/${b.cover || "uploads/default.jpg"}`}
+                src={`https://ebook-fmjq.onrender.com/${b.cover || "uploads/default.jpg"}`}
                 className="w-full h-40 object-cover rounded mb-2"
               />
 
