@@ -81,7 +81,7 @@ const writeJSON = (file: string, data: any) => {
 const apiRouter = express.Router();
 
 // ================= AUTHOR APPLY (🔥 FIXED WITH UID) =================
-apiRouter.post("/author/apply", upload.single("photo"), (req, res) => {
+apiRouter.post("/author/apply", (req, res) => {
   try {
     const { name, bio, category, experience, uid } = req.body;
 
