@@ -321,7 +321,21 @@ apiRouter.get("/sales", (req, res) => {
 // ================= CONNECT =================
 app.use("/api", apiRouter);
 
+
+
+
+
+app.get("/test", (req, res) => {
+  res.send("WORKING 🔥");
+});
+
+
+
+
 // ================= START =================
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
+
+
+
