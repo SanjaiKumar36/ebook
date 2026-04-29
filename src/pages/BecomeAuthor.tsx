@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import { getAuth } from "firebase/auth";
 export default function BecomeAuthor() {
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
@@ -153,6 +153,7 @@ export default function BecomeAuthor() {
             className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-xl font-semibold hover:scale-105 transition disabled:opacity-50"
           >
             {loading ? "Submitting..." : "Submit Application 🚀"}
+          ``
           </button>
 
         </div>

@@ -2,71 +2,62 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function AuthorDashboard() {
-
   const [books, setBooks] = useState<any[]>([]);
   const [sales, setSales] = useState<any[]>([]);
   const navigate = useNavigate();
 
+  const API = "http://localhost:3000/api";
+
   // 🔥 FETCH BOOKS
   useEffect(() => {
-    fetch("https://ebook-fmjq.onrender.com/api/admin/books")
-      .then(res => res.json())
-      .then(data => setBooks(data))
-      .catch(err => console.error(err));
+    const fetchBooks = async () => {
+      try {
+        const res = await fetch(`${API}/admin/books`);
+        const data = await res.json();
+        setBooks(data);
+      } catch (err) {
+        console.error("BOOK ERROR:", err);
+      }
+    };
+
+    fetchBooks();
   }, []);
 
   // 🔥 FETCH SALES
   useEffect(() => {
-    fetch("https://ebook-fmjq.onrender.com/api/sales")
-      .then(res => res.json())
-      .then(data => setSales(data))
-      .catch(err => console.error(err));
+    const fetchSales = async () => {
+      try {
+        const res = await fetch(`${API}/sales`);
+        const data = await res.json();
+        setSales(data);
+      } catch (err) {
+        console.error("SALES ERROR:", err);
+      }
+    };
+
+    fetchSales();
   }, []);
 
-useEffect(() => {
-  fetch("https://ebook-fmjq.onrender.com/api/authors")
-    .then(res => res.json())
-    .then(data => {
-      if (data.length > 0) {
-        // 🔥 author approved na role set pannum
-        localStorage.setItem("role", "author");
+  // 🔥 CHECK AUTHOR STATUS (single clean version)
+  useEffect(() => {
+    const checkAuthor = async () => {
+      try {
+        const res = await fetch(`${API}/admin/authors`);
+        const data = await res.json();
+
+        const approved = data.find((a: any) => a.status === "approved");
+
+        if (approved) {
+          localStorage.setItem("role", "author");
+          localStorage.removeItem("authorApplied");
+        }
+      } catch (err) {
+        console.error("AUTHOR ERROR:", err);
       }
-    });
-}, []);
+    };
 
-useEffect(() => {
-  fetch("https://ebook-fmjq.onrender.com/api/authors")
-    .then(res => res.json())
-    .then(data => {
-      console.log("AUTHORS:", data);
-
-      // 🔥 check approved author
-      const isApproved = data.some((a: any) => a.status === "approved");
-
-      if (isApproved) {
-        localStorage.setItem("role", "author");
-        console.log("AUTHOR SET ✅");
-      } else {
-        console.log("NOT APPROVED ❌");
-      }
-    });
-}, []);
-
-useEffect(() => {
-  fetch("https://ebook-fmjq.onrender.com/api/admin/authors")
-    .then(res => res.json())
-    .then(data => {
-      const approved = data.find(
-        (a: any) => a.status === "approved"
-      );
-
-      if (approved) {
-        localStorage.setItem("role", "author");
-        localStorage.removeItem("authorApplied");
-      }
-    });
-}, []);
-
+    checkAuthor();
+  }, []);
 
   // 🔥 CALCULATE EARNINGS
   const totalSales = sales.length;
@@ -114,7 +105,7 @@ useEffect(() => {
             >
 
               <img
-                src={`https://ebook-fmjq.onrender.com/${b.cover || "uploads/default.jpg"}`}
+                src={`http://localhost:3000/${b.cover}`}
                 className="w-full h-40 object-cover rounded mb-2"
               />
 
@@ -122,11 +113,13 @@ useEffect(() => {
 
               <p className="text-xs mt-1">
                 Status:
-                <span className={`ml-1 font-semibold ${
-                  b.status === "approved"
-                    ? "text-green-600"
-                    : "text-yellow-500"
-                }`}>
+                <span
+                  className={`ml-1 font-semibold ${
+                    b.status === "approved"
+                      ? "text-green-600"
+                      : "text-yellow-500"
+                  }`}
+                >
                   {b.status}
                 </span>
               </p>
@@ -136,7 +129,6 @@ useEffect(() => {
 
         </div>
       )}
-
     </div>
   );
 }

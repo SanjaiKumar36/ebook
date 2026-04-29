@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Search } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { CATEGORIES } from '../constants/categories';
+import React, { useState, useEffect } from "react";
+import { Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { CATEGORIES } from "../constants/categories";
 
-const API_URL = "https://ebook-fmjq.onrender.com"; // 🔥 YOUR BACKEND
+const API_URL = "http://localhost:3000"; // ✅ FIXED
 
 const Home: React.FC = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [books, setBooks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -34,7 +34,7 @@ const Home: React.FC = () => {
 
   // 🔥 SEARCH FILTER
   const filteredBooks = books.filter((b) =>
-    b.title.toLowerCase().includes(searchQuery.toLowerCase())
+    b.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -45,7 +45,8 @@ const Home: React.FC = () => {
 
         <div>
           <h1 className="text-4xl font-bold">
-            Welcome, <span className="text-purple-600">
+            Welcome,{" "}
+            <span className="text-purple-600">
               {user?.displayName || "Reader"}
             </span>
           </h1>
@@ -67,7 +68,7 @@ const Home: React.FC = () => {
 
       {/* CATEGORIES */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
-        {CATEGORIES.slice(0, 8).map(cat => (
+        {CATEGORIES.slice(0, 8).map((cat) => (
           <button
             key={cat.id}
             onClick={() => navigate(`/browse?cat=${cat.name}`)}
@@ -113,7 +114,7 @@ const Home: React.FC = () => {
                   ₹{b.price}
                 </p>
 
-                {/* 🔥 FIXED BUTTON */}
+                {/* BUTTON */}
                 <button
                   onClick={() => navigate(`/book/${b.id}`)}
                   className="text-sm text-purple-600 mt-1 hover:underline"
@@ -129,7 +130,7 @@ const Home: React.FC = () => {
       </div>
 
       {/* AUTHOR SECTION */}
-      {profile?.role !== 'admin' && (
+      {profile?.role !== "admin" && (
         <div className="p-8 border rounded-2xl flex justify-between items-center">
 
           <div>
@@ -138,9 +139,7 @@ const Home: React.FC = () => {
             </h3>
 
             <p className="text-gray-500">
-              {isAuthor
-                ? "Manage your books"
-                : "Publish and earn"}
+              {isAuthor ? "Manage your books" : "Publish and earn"}
             </p>
           </div>
 
@@ -155,7 +154,6 @@ const Home: React.FC = () => {
 
         </div>
       )}
-
     </div>
   );
 };

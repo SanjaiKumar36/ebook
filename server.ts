@@ -3,11 +3,12 @@ import express from "express";
 import cors from "cors";
 import fs from "fs";
 import multer from "multer";
+import path from "path";
 
 const app = express();
 const PORT = 3000;
 
-// 🔥 RAZORPAY
+// 🔥 RAZORPAY (MOVE TO ENV IN PRODUCTION)
 const razorpay = new Razorpay({
   key_id: "rzp_test_SiWc6w5QCu6cpS",
   key_secret: "yKJefZk6QlPsRchT9l101hF3",
@@ -16,12 +17,20 @@ const razorpay = new Razorpay({
 app.use(cors());
 app.use(express.json());
 
-// 🔥 SERVE FILES (VERY IMPORTANT)
-app.use("/uploads", express.static("uploads", {
-  setHeaders: (res) => {
-    res.setHeader("Content-Disposition", "inline");
-  },
-}));
+// ================= CREATE UPLOADS FOLDER =================
+if (!fs.existsSync("uploads")) {
+  fs.mkdirSync("uploads");
+}
+
+// ================= SERVE FILES =================
+app.use(
+  "/uploads",
+  express.static(path.join(process.cwd(), "uploads"), {
+    setHeaders: (res) => {
+      res.setHeader("Content-Disposition", "inline");
+    },
+  })
+);
 
 // ================= MULTER =================
 const storage = multer.diskStorage({
@@ -30,12 +39,17 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + "-" + file.originalname);
   },
 });
+
 const upload = multer({ storage });
 
 // ================= HELPERS =================
 const readJSON = (file: string) => {
-  if (!fs.existsSync(file)) return [];
-  return JSON.parse(fs.readFileSync(file, "utf-8"));
+  try {
+    if (!fs.existsSync(file)) return [];
+    return JSON.parse(fs.readFileSync(file, "utf-8"));
+  } catch {
+    return [];
+  }
 };
 
 const writeJSON = (file: string, data: any) => {
@@ -48,8 +62,6 @@ const apiRouter = express.Router();
 // ================= AUTHOR APPLY =================
 apiRouter.post("/author/apply", upload.single("photo"), (req, res) => {
   try {
-    console.log("🔥 AUTHOR APPLY HIT");
-
     const { name, bio, category, experience } = req.body;
 
     if (!name || !bio || !category || !experience) {
@@ -71,7 +83,6 @@ apiRouter.post("/author/apply", upload.single("photo"), (req, res) => {
     writeJSON("authors.json", authors);
 
     res.json({ success: true });
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Upload failed" });
@@ -80,8 +91,7 @@ apiRouter.post("/author/apply", upload.single("photo"), (req, res) => {
 
 // ================= ADMIN AUTHORS =================
 apiRouter.get("/admin/authors", (_, res) => {
-  const authors = readJSON("authors.json");
-  res.json(authors);
+  res.json(readJSON("authors.json"));
 });
 
 // ================= APPROVE AUTHOR =================
@@ -100,10 +110,6 @@ apiRouter.post("/admin/approve-author/:id", (req, res) => {
 // ================= PUBLIC AUTHORS =================
 apiRouter.get("/authors", (_, res) => {
   const authors = readJSON("authors.json");
-
-  // 🔥 DEBUG LOG
-  console.log("Authors:", authors);
-
   res.json(authors.filter((a: any) => a.status === "approved"));
 });
 
@@ -116,8 +122,6 @@ apiRouter.post(
   ]),
   (req: any, res) => {
     try {
-      console.log("🔥 BOOK UPLOAD HIT");
-
       const { title, price } = req.body;
 
       const pdf = req.files?.file?.[0];
@@ -141,7 +145,6 @@ apiRouter.post(
       writeJSON("books.json", books);
 
       res.json({ success: true });
-
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Upload failed" });
@@ -151,8 +154,7 @@ apiRouter.post(
 
 // ================= ADMIN BOOKS =================
 apiRouter.get("/admin/books", (_, res) => {
-  const books = readJSON("books.json");
-  res.json(books);
+  res.json(readJSON("books.json"));
 });
 
 // ================= APPROVE BOOK =================
@@ -179,6 +181,10 @@ apiRouter.post("/create-order", async (req, res) => {
   try {
     const { amount } = req.body;
 
+    if (!amount) {
+      return res.status(400).json({ error: "Amount required" });
+    }
+
     const order = await razorpay.orders.create({
       amount: amount * 100,
       currency: "INR",
@@ -186,7 +192,6 @@ apiRouter.post("/create-order", async (req, res) => {
     });
 
     res.json(order);
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Payment error" });
@@ -200,54 +205,46 @@ apiRouter.get("/reviews/:bookId", (req, res) => {
 });
 
 apiRouter.post("/reviews", (req, res) => {
-  const { bookId, user, comment } = req.body;
+  const { bookId, user, comment, rating } = req.body;
 
-  if (!bookId || !comment) {
+  if (!bookId || !comment || !rating) {
     return res.status(400).json({ error: "Missing fields" });
   }
 
   const reviews = readJSON("reviews.json");
 
- reviews.push({
-  id: Date.now(),
-  bookId,
-  user,
-  comment,
-  rating, // 🔥 ADD THIS
-});
+  reviews.push({
+    id: Date.now(),
+    bookId,
+    user,
+    comment,
+    rating,
+  });
 
   writeJSON("reviews.json", reviews);
 
   res.json({ success: true });
 });
 
+// ================= SALES =================
 apiRouter.post("/sale", (req, res) => {
   const { bookId } = req.body;
 
-  let sales = [];
-
-  if (fs.existsSync("sales.json")) {
-    sales = JSON.parse(fs.readFileSync("sales.json", "utf-8"));
-  }
+  let sales = readJSON("sales.json");
 
   sales.push({
     id: Date.now(),
     bookId,
   });
 
-  fs.writeFileSync("sales.json", JSON.stringify(sales, null, 2));
+  writeJSON("sales.json", sales);
 
   res.json({ success: true });
 });
 
 apiRouter.get("/sales", (req, res) => {
-  const sales = fs.existsSync("sales.json")
-    ? JSON.parse(fs.readFileSync("sales.json", "utf-8"))
-    : [];
-
-  res.json(sales);
+  res.json(readJSON("sales.json"));
 });
-
 
 // ================= CONNECT =================
 app.use("/api", apiRouter);
