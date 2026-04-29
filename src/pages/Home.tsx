@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { CATEGORIES } from '../constants/categories';
 
+const API_URL = "https://ebook-fmjq.onrender.com"; // 🔥 YOUR BACKEND
+
 const Home: React.FC = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
@@ -12,7 +14,7 @@ const Home: React.FC = () => {
   const [books, setBooks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const isAuthor = localStorage.getItem("isAuthor");
+  const isAuthor = localStorage.getItem("role") === "author";
 
   useEffect(() => {
     fetchBooks();
@@ -20,11 +22,11 @@ const Home: React.FC = () => {
 
   const fetchBooks = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/books");
+      const res = await fetch(`${API_URL}/api/books`);
       const data = await res.json();
       setBooks(data);
     } catch (err) {
-      console.error(err);
+      console.error("Fetch error:", err);
     } finally {
       setLoading(false);
     }
@@ -95,7 +97,7 @@ const Home: React.FC = () => {
 
                 {/* COVER */}
                 <img
-                  src={`http://localhost:3000/${b.cover}`}
+                  src={`${API_URL}/${b.cover}`}
                   onError={(e) =>
                     ((e.target as HTMLImageElement).src =
                       "https://via.placeholder.com/150")
@@ -114,9 +116,9 @@ const Home: React.FC = () => {
                 {/* 🔥 FIXED BUTTON */}
                 <button
                   onClick={() => navigate(`/book/${b.id}`)}
-                  className="text-sm text-purple-600 mt-1"
+                  className="text-sm text-purple-600 mt-1 hover:underline"
                 >
-                  Read Now
+                  View Details
                 </button>
 
               </div>
