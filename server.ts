@@ -6,6 +6,8 @@ import path from "path";
 
 import fs from "fs";
 
+console.log("🔥 NEW VERSION RUNNING");
+
 // 🔥 AUTO CREATE FILES + FOLDER (RENDER FIX)
 const ensureFile = (file: string) => {
   if (!fs.existsSync(file)) {
