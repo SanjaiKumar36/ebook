@@ -39,6 +39,52 @@ const razorpay = new Razorpay({
 app.use(cors());
 app.use(express.json());
 
+
+app.post("/api/author/apply", (req, res) => {
+  try {
+    console.log("BODY:", req.body);
+
+    const name = req.body.name;
+    const bio = req.body.bio;
+    const category = req.body.category;
+    const experience = req.body.experience;
+    const uid = req.body.uid;
+
+    // 🔥 VALIDATION
+    if (!name || !bio || !category || !experience || !uid) {
+      return res.status(400).json({ error: "Missing fields ❌" });
+    }
+
+    let authors = [];
+
+    if (fs.existsSync("authors.json")) {
+      authors = JSON.parse(fs.readFileSync("authors.json", "utf-8"));
+    }
+
+    authors.push({
+      id: Date.now(),
+      uid,
+      name,
+      bio,
+      category,
+      experience,
+      photo: "no-image",
+      status: "pending",
+    });
+
+    fs.writeFileSync("authors.json", JSON.stringify(authors, null, 2));
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.error("SERVER ERROR:", err);
+    res.status(500).json({ error: "Server error ❌" });
+  }
+});
+
+
+
+
 // ================= CREATE UPLOADS =================
 if (!fs.existsSync("uploads")) {
   fs.mkdirSync("uploads");
@@ -62,6 +108,10 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage });
+
+
+
+
 
 // ================= HELPERS =================
 const readJSON = (file: string) => {
