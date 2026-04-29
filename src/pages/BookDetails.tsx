@@ -1,6 +1,9 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
+// ✅ ENV BASED API
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function BookDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -16,7 +19,7 @@ export default function BookDetails() {
 
   // 🔥 FETCH BOOK
   useEffect(() => {
-    fetch("https://ebook-fmjq.onrender.com/api/books")
+    fetch(`${API_URL}/api/books`)
       .then(res => res.json())
       .then(data => {
         const found = data.find((b: any) => b.id == id);
@@ -28,9 +31,13 @@ export default function BookDetails() {
 
   // 🔥 FETCH REVIEWS
   const loadReviews = async () => {
-    const res = await fetch("https://ebook-fmjq.onrender.com/api/reviews/" + id);
-    const data = await res.json();
-    setReviews(data);
+    try {
+      const res = await fetch(`${API_URL}/api/reviews/${id}`);
+      const data = await res.json();
+      setReviews(data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   useEffect(() => {
@@ -44,7 +51,7 @@ export default function BookDetails() {
       return;
     }
 
-    await fetch("https://ebook-fmjq.onrender.com/api/reviews", {
+    await fetch(`${API_URL}/api/reviews`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -59,47 +66,51 @@ export default function BookDetails() {
 
     setComment("");
     setRating(5);
-
-    loadReviews(); // 🔥 no reload
+    loadReviews();
   };
 
-  // 🔥 PAYMENT
+  // 🔥 PAYMENT FIXED
   const handleBuy = async () => {
     if (!book) return;
 
-    const res = await fetch("https://ebook-fmjq.onrender.com/api/create-order", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ amount: book.price }),
-    });
+    try {
+      const res = await fetch(`${API_URL}/api/create-order`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ amount: book.price }),
+      });
 
-    const order = await res.json();
+      const order = await res.json();
 
-    const options = {
-      key: "rzp_test_SiWc6w5QCu6cpS",
-      amount: order.amount,
-      currency: "INR",
-      name: "ZippyBooks",
-      description: book.title,
-      order_id: order.id,
+      const options = {
+        key: "rzp_test_SiWc6w5QCu6cpS",
+        amount: order.amount,
+        currency: "INR",
+        name: "ZippyBooks",
+        description: book.title,
+        order_id: order.id,
 
-      handler: function () {
-        localStorage.setItem(`book_${book.id}_paid`, "true");
-        alert("Payment Successful 🎉");
+        handler: function () {
+          localStorage.setItem(`book_${book.id}_paid`, "true");
+          alert("Payment Successful 🎉");
 
-        // 🔥 update UI instantly
-        window.location.reload();
-      },
+          // reload
+          window.location.reload();
+        },
 
-      theme: {
-        color: "#7c3aed",
-      },
-    };
+        theme: {
+          color: "#7c3aed",
+        },
+      };
 
-    const rzp = new (window as any).Razorpay(options);
-    rzp.open();
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+
+    } catch (err) {
+      console.error("Payment Error:", err);
+    }
   };
 
   if (loading) return <div className="p-10">Loading...</div>;
@@ -114,7 +125,7 @@ export default function BookDetails() {
         <div className="sticky top-32">
           <div className="bg-white p-6 rounded-2xl shadow">
             <img
-              src={`https://ebook-fmjq.onrender.com/${book.cover}`}
+              src={`${API_URL}/${book.cover}`}
               className="w-full h-[450px] object-cover rounded-xl"
             />
           </div>

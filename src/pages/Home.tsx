@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { CATEGORIES } from "../constants/categories";
 
-const API_URL = "http://localhost:3000"; // ✅ FIXED
+// ✅ ENV BASED API (IMPORTANT)
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Home: React.FC = () => {
   const { user, profile } = useAuth();
@@ -32,7 +33,7 @@ const Home: React.FC = () => {
     }
   };
 
-  // 🔥 SEARCH FILTER
+  // 🔥 SAFE SEARCH FILTER
   const filteredBooks = books.filter((b) =>
     b.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -154,6 +155,7 @@ const Home: React.FC = () => {
 
         </div>
       )}
+
     </div>
   );
 };

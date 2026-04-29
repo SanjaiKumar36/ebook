@@ -6,7 +6,7 @@ export default function AuthorDashboard() {
   const [sales, setSales] = useState<any[]>([]);
   const navigate = useNavigate();
 
-  const API = "http://localhost:3000/api";
+  const API = `${import.meta.env.VITE_API_URL}/api`;
 
   // 🔥 FETCH BOOKS
   useEffect(() => {
