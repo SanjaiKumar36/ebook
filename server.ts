@@ -89,6 +89,25 @@ apiRouter.post("/author/apply", upload.single("photo"), (req, res) => {
   }
 });
 
+
+// 🔥 AUTO CREATE FILES
+const ensureFile = (file: string) => {
+  if (!fs.existsSync(file)) {
+    fs.writeFileSync(file, "[]");
+  }
+};
+
+ensureFile("authors.json");
+ensureFile("books.json");
+ensureFile("reviews.json");
+ensureFile("sales.json");
+
+// 🔥 AUTO CREATE UPLOADS
+if (!fs.existsSync("uploads")) {
+  fs.mkdirSync("uploads");
+}
+
+
 // ================= ADMIN AUTHORS =================
 apiRouter.get("/admin/authors", (_, res) => {
   res.json(readJSON("authors.json"));
