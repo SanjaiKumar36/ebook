@@ -52,6 +52,21 @@ useEffect(() => {
     });
 }, []);
 
+useEffect(() => {
+  fetch("https://ebook-fmjq.onrender.com/api/admin/authors")
+    .then(res => res.json())
+    .then(data => {
+      const approved = data.find(
+        (a: any) => a.status === "approved"
+      );
+
+      if (approved) {
+        localStorage.setItem("role", "author");
+        localStorage.removeItem("authorApplied");
+      }
+    });
+}, []);
+
 
   // 🔥 CALCULATE EARNINGS
   const totalSales = sales.length;

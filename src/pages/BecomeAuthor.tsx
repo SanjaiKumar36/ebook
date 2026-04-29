@@ -6,12 +6,15 @@ export default function BecomeAuthor() {
   const [category, setCategory] = useState("Development");
   const [experience, setExperience] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     if (!name || !bio || !experience) {
       alert("Fill all fields");
       return;
     }
+
+    setLoading(true);
 
     try {
       const formData = new FormData();
@@ -25,23 +28,31 @@ export default function BecomeAuthor() {
         formData.append("photo", photo);
       }
 
-      const res = await fetch("https://ebook-fmjq.onrender.com/api/author/apply", {
-        method: "POST",
-        body: formData,
-      });
+      const res = await fetch(
+        "https://ebook-fmjq.onrender.com/api/author/apply",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       const data = await res.json();
 
       if (res.ok) {
         alert("Application Submitted 🚀");
 
-        // ✅ ONLY HERE
-        localStorage.setItem("isAuthor", "true");
+        // ✅ IMPORTANT FIX
+        localStorage.setItem("authorApplied", "true");
 
+        // ❌ REMOVE THIS (VERY IMPORTANT)
+        // localStorage.setItem("isAuthor", "true");
+
+        // Reset form
         setName("");
         setBio("");
         setExperience("");
         setPhoto(null);
+
       } else {
         alert(data.error || "Upload failed ❌");
       }
@@ -49,12 +60,14 @@ export default function BecomeAuthor() {
     } catch (err) {
       console.error(err);
       alert("Server error ❌");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen pt-28 flex items-center justify-center bg-gradient-to-br from-purple-50 to-white px-4">
-      
+
       <div className="w-full max-w-2xl bg-white shadow-xl rounded-3xl p-10 border border-gray-100">
 
         {/* TITLE */}
@@ -136,9 +149,10 @@ export default function BecomeAuthor() {
 
           <button
             onClick={handleSubmit}
-            className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-xl font-semibold hover:scale-105 transition"
+            disabled={loading}
+            className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-xl font-semibold hover:scale-105 transition disabled:opacity-50"
           >
-            Submit Application 🚀
+            {loading ? "Submitting..." : "Submit Application 🚀"}
           </button>
 
         </div>
