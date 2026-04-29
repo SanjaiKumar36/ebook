@@ -1,198 +1,146 @@
 import { useEffect, useState } from "react";
 
-type Author = {
-  id: number;
-  name: string;
-  photo: string;
-  status: string;
-};
+const API = import.meta.env.VITE_API_URL + "/api";
 
-type Book = {
-  id: number;
-  title: string;
-  price: number;
-  cover: string;
-  file: string; // 🔥 IMPORTANT (PDF path)
-  status: string;
-};
+export default function AdminDashboard() {
+  const [authors, setAuthors] = useState<any[]>([]);
+  const [books, setBooks] = useState<any[]>([]);
 
-export default function Admin() {
-  const [authors, setAuthors] = useState<Author[]>([]);
-  const [books, setBooks] = useState<Book[]>([]);
-  const [loading, setLoading] = useState(true);
+  // 🔥 FETCH AUTHORS
+  const fetchAuthors = async () => {
+    const res = await fetch(`${API}/admin/authors`);
+    const data = await res.json();
+    setAuthors(data);
+  };
 
-  // 🔥 LOAD DATA
+  // 🔥 FETCH BOOKS
+  const fetchBooks = async () => {
+    const res = await fetch(`${API}/admin/books`);
+    const data = await res.json();
+    setBooks(data);
+  };
+
   useEffect(() => {
-    fetchData();
+    fetchAuthors();
+    fetchBooks();
   }, []);
 
-  const fetchData = async () => {
-    try {
-      const [aRes, bRes] = await Promise.all([
-        fetch("https://ebook-fmjq.onrender.com/api/admin/authors"),
-        fetch("https://ebook-fmjq.onrender.com/api/admin/books"),
-      ]);
-
-      const authorsData = await aRes.json();
-      const booksData = await bRes.json();
-
-      setAuthors(authorsData);
-      setBooks(booksData);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ✅ APPROVE AUTHOR
+  // 🔥 APPROVE AUTHOR
   const approveAuthor = async (id: number) => {
-    await fetch(`https://ebook-fmjq.onrender.com/api/admin/approve-author/${id}`, {
+    await fetch(`${API}/admin/approve-author/${id}`, {
       method: "POST",
     });
 
-    setAuthors((prev) =>
-      prev.map((a) =>
-        a.id === id ? { ...a, status: "approved" } : a
-      )
-    );
+    fetchAuthors();
   };
 
-  // ✅ APPROVE BOOK
+  // 🔥 APPROVE BOOK
   const approveBook = async (id: number) => {
-    await fetch(`https://ebook-fmjq.onrender.com/api/admin/approve-book/${id}`, {
+    await fetch(`${API}/admin/approve-book/${id}`, {
       method: "POST",
     });
 
-    setBooks((prev) =>
-      prev.map((b) =>
-        b.id === id ? { ...b, status: "approved" } : b
-      )
-    );
+    fetchBooks();
   };
-
-  if (loading) {
-    return <div className="p-10">Loading Admin Panel...</div>;
-  }
 
   return (
-    <div className="min-h-screen pt-28 px-6 pb-10 bg-gray-50">
+    <div className="min-h-screen pt-28 px-6 bg-gray-50">
 
       <h1 className="text-3xl font-bold mb-10">
-        Admin Panel 🛠️
+        Admin Panel 👨‍💼
       </h1>
 
-      {/* ================= AUTHORS ================= */}
-      <h2 className="text-xl font-bold mb-4">Authors</h2>
+      {/* 🔥 AUTHORS */}
+      <div className="mb-16">
+        <h2 className="text-2xl font-bold mb-4">Author Requests</h2>
 
-      <div className="grid md:grid-cols-3 gap-6 mb-12">
-        {authors.length === 0 && <p>No authors found</p>}
+        {authors.length === 0 ? (
+          <p>No authors</p>
+        ) : (
+          <div className="grid md:grid-cols-3 gap-6">
 
-        {authors.map((a) => (
-          <div
-            key={a.id}
-            className="bg-white p-5 rounded-2xl shadow text-center hover:shadow-lg transition"
-          >
-            <img
-              src={`https://ebook-fmjq.onrender.com/${a.photo}`}
-              onError={(e) =>
-                ((e.target as HTMLImageElement).src =
-                  "https://via.placeholder.com/100")
-              }
-              className="w-20 h-20 rounded-full mx-auto object-cover mb-3"
-            />
+            {authors.map((a) => (
+              <div key={a.id} className="bg-white p-5 rounded-xl shadow">
 
-            <h3 className="font-bold">{a.name}</h3>
+                <img
+                  src={`${import.meta.env.VITE_API_URL}/${a.photo}`}
+                  className="w-full h-40 object-cover rounded mb-2"
+                />
 
-            <p className="text-sm mt-1">
-              Status:{" "}
-              <span
-                className={
-                  a.status === "approved"
-                    ? "text-green-600"
-                    : "text-yellow-600"
-                }
-              >
-                {a.status}
-              </span>
-            </p>
+                <h3 className="font-bold">{a.name}</h3>
+                <p className="text-sm text-gray-500">{a.category}</p>
 
-            {a.status === "pending" && (
-              <button
-                onClick={() => approveAuthor(a.id)}
-                className="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
-              >
-                Approve Author
-              </button>
-            )}
+                <p className="text-xs mt-2">
+                  Status:
+                  <span className={`ml-1 ${
+                    a.status === "approved"
+                      ? "text-green-600"
+                      : "text-yellow-500"
+                  }`}>
+                    {a.status}
+                  </span>
+                </p>
+
+                {a.status !== "approved" && (
+                  <button
+                    onClick={() => approveAuthor(a.id)}
+                    className="mt-3 bg-green-600 text-white px-4 py-2 rounded"
+                  >
+                    Approve
+                  </button>
+                )}
+
+              </div>
+            ))}
+
           </div>
-        ))}
+        )}
       </div>
 
-      {/* ================= BOOKS ================= */}
-      <h2 className="text-xl font-bold mb-4">Books</h2>
+      {/* 🔥 BOOKS */}
+      <div>
+        <h2 className="text-2xl font-bold mb-4">Books Approval</h2>
 
-      <div className="grid md:grid-cols-3 gap-6">
-        {books.length === 0 && <p>No books found</p>}
+        {books.length === 0 ? (
+          <p>No books</p>
+        ) : (
+          <div className="grid md:grid-cols-4 gap-6">
 
-        {books.map((b) => (
-          <div
-            key={b.id}
-            className="bg-white p-5 rounded-2xl shadow text-center hover:shadow-lg transition"
-          >
+            {books.map((b) => (
+              <div key={b.id} className="bg-white p-4 rounded-xl shadow">
 
-            {/* COVER */}
-            <img
-              src={`https://ebook-fmjq.onrender.com/${b.cover}`}
-              onError={(e) =>
-                ((e.target as HTMLImageElement).src =
-                  "https://via.placeholder.com/150x200")
-              }
-              className="w-28 h-36 object-cover mx-auto rounded mb-3"
-            />
+                <img
+                  src={`${import.meta.env.VITE_API_URL}/${b.cover}`}
+                  className="w-full h-40 object-cover rounded mb-2"
+                />
 
-            <h3 className="font-bold">{b.title}</h3>
+                <h3 className="font-bold text-sm">{b.title}</h3>
 
-            <p className="text-purple-600 font-semibold">
-              ₹{b.price}
-            </p>
+                <p className="text-xs mt-1">
+                  Status:
+                  <span className={`ml-1 ${
+                    b.status === "approved"
+                      ? "text-green-600"
+                      : "text-yellow-500"
+                  }`}>
+                    {b.status}
+                  </span>
+                </p>
 
-            <p className="text-sm mt-1">
-              Status:{" "}
-              <span
-                className={
-                  b.status === "approved"
-                    ? "text-green-600"
-                    : "text-yellow-600"
-                }
-              >
-                {b.status}
-              </span>
-            </p>
+                {b.status !== "approved" && (
+                  <button
+                    onClick={() => approveBook(b.id)}
+                    className="mt-2 bg-green-600 text-white px-3 py-1 rounded"
+                  >
+                    Approve
+                  </button>
+                )}
 
-            {/* 🔥 PREVIEW PDF */}
-            {b.file && (
-              <a
-                href={`https://ebook-fmjq.onrender.com/${b.file}`}
-                target="_blank"
-                className="block mt-3 text-blue-500 underline"
-              >
-                Preview Book 📖
-              </a>
-            )}
-
-            {/* 🔥 APPROVE */}
-            {b.status === "pending" && (
-              <button
-                onClick={() => approveBook(b.id)}
-                className="mt-4 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
-              >
-                Approve Book
-              </button>
-            )}
+              </div>
+            ))}
 
           </div>
-        ))}
+        )}
       </div>
 
     </div>
