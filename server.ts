@@ -14,6 +14,25 @@ const razorpay = new Razorpay({
   key_secret: "yKJefZk6QlPsRchT9l101hF3",
 });
 
+
+// 🔥 AUTO CREATE FILES
+const ensureFile = (file: string) => {
+  if (!fs.existsSync(file)) {
+    fs.writeFileSync(file, "[]");
+  }
+};
+
+ensureFile("authors.json");
+ensureFile("books.json");
+ensureFile("reviews.json");
+ensureFile("sales.json");
+
+// 🔥 AUTO CREATE UPLOADS
+if (!fs.existsSync("uploads")) {
+  fs.mkdirSync("uploads");
+}
+
+
 app.use(cors());
 app.use(express.json());
 
@@ -88,24 +107,6 @@ apiRouter.post("/author/apply", upload.single("photo"), (req, res) => {
     res.status(500).json({ error: "Upload failed" });
   }
 });
-
-
-// 🔥 AUTO CREATE FILES
-const ensureFile = (file: string) => {
-  if (!fs.existsSync(file)) {
-    fs.writeFileSync(file, "[]");
-  }
-};
-
-ensureFile("authors.json");
-ensureFile("books.json");
-ensureFile("reviews.json");
-ensureFile("sales.json");
-
-// 🔥 AUTO CREATE UPLOADS
-if (!fs.existsSync("uploads")) {
-  fs.mkdirSync("uploads");
-}
 
 
 // ================= ADMIN AUTHORS =================
