@@ -1,51 +1,33 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-// ✅ ENV BASED API
-const API_URL = import.meta.env.VITE_API_URL;
-const API = `${API_URL}/api`;
+import { useAuth } from "../context/AuthContext";
 
 export default function AuthorDashboard() {
+  const { profile } = useAuth();
   const [books, setBooks] = useState<any[]>([]);
   const [sales, setSales] = useState<any[]>([]);
   const navigate = useNavigate();
 
-  // 🔥 PROTECT PAGE
-  if (localStorage.getItem("role") !== "author") {
-    return <div className="p-10">Access Denied ❌</div>;
-  }
-
   // 🔥 FETCH BOOKS
   useEffect(() => {
-    const fetchBooks = async () => {
-      try {
-        const res = await fetch(`${API}/admin/books`);
-        const data = await res.json();
-        setBooks(data);
-      } catch (err) {
-        console.error("BOOK ERROR:", err);
-      }
-    };
-
-    fetchBooks();
+    fetch("https://ebook-fmjq.onrender.com/api/admin/books")
+      .then(res => res.json())
+      .then(data => setBooks(data))
+      .catch(err => console.error(err));
   }, []);
 
   // 🔥 FETCH SALES
   useEffect(() => {
-    const fetchSales = async () => {
-      try {
-        const res = await fetch(`${API}/sales`);
-        const data = await res.json();
-        setSales(data);
-      } catch (err) {
-        console.error("SALES ERROR:", err);
-      }
-    };
-
-    fetchSales();
+    fetch("https://ebook-fmjq.onrender.com/api/sales")
+      .then(res => res.json())
+      .then(data => setSales(data))
+      .catch(err => console.error(err));
   }, []);
 
-  // 🔥 CALCULATE EARNINGS
+  // ✅ REMOVED: All the broken localStorage role-setting useEffects.
+  // Role is now managed exclusively in Firestore by admin approval.
+  // ProtectedRoute checks profile.role from Firestore — no localStorage hacks needed.
+
   const totalSales = sales.length;
   const earnings = totalSales * 70;
 
@@ -55,12 +37,8 @@ export default function AuthorDashboard() {
       {/* 🔥 EARNINGS */}
       <div className="bg-white p-6 rounded-xl shadow mb-8">
         <h2 className="text-xl font-bold">Earnings 💰</h2>
-        <p className="text-2xl font-bold text-green-600 mt-2">
-          ₹{earnings}
-        </p>
-        <p className="text-sm text-gray-500">
-          Total Sales: {totalSales}
-        </p>
+        <p className="text-2xl font-bold text-green-600 mt-2">₹{earnings}</p>
+        <p className="text-sm text-gray-500">Total Sales: {totalSales}</p>
       </div>
 
       {/* HEADER */}
@@ -83,16 +61,13 @@ export default function AuthorDashboard() {
         <p className="text-gray-500">No books uploaded yet</p>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-
           {books.map((b) => (
             <div
               key={b.id}
               className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition"
             >
-
-              {/* ✅ FIXED IMAGE */}
               <img
-                src={`${API_URL}/${b.cover}`}
+                src={`https://ebook-fmjq.onrender.com/${b.cover || "uploads/default.jpg"}`}
                 className="w-full h-40 object-cover rounded mb-2"
               />
 
@@ -100,22 +75,19 @@ export default function AuthorDashboard() {
 
               <p className="text-xs mt-1">
                 Status:
-                <span
-                  className={`ml-1 font-semibold ${
-                    b.status === "approved"
-                      ? "text-green-600"
-                      : "text-yellow-500"
-                  }`}
-                >
+                <span className={`ml-1 font-semibold ${
+                  b.status === "approved"
+                    ? "text-green-600"
+                    : "text-yellow-500"
+                }`}>
                   {b.status}
                 </span>
               </p>
-
             </div>
           ))}
-
         </div>
       )}
+
     </div>
   );
 }
