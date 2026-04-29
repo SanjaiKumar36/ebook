@@ -27,6 +27,8 @@ import UploadBook from './pages/UploadBook';
 
 
 
+<Route path="/author/dashboard" element={<AuthorDashboard />} />
+
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const location = useLocation();

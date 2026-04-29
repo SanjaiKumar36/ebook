@@ -17,6 +17,13 @@ const Home: React.FC = () => {
 
   const isAuthor = localStorage.getItem("role") === "author";
 
+<button
+  onClick={() =>
+    navigate(isAuthor ? "/author/dashboard" : "/become-author")
+  }
+>
+  
+</button>
   useEffect(() => {
     fetchBooks();
   }, []);

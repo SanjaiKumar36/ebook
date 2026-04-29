@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+// ✅ ENV BASED API
+const API_URL = import.meta.env.VITE_API_URL;
+const API = `${API_URL}/api`;
+
 export default function AuthorDashboard() {
   const [books, setBooks] = useState<any[]>([]);
   const [sales, setSales] = useState<any[]>([]);
   const navigate = useNavigate();
 
-  const API = `${import.meta.env.VITE_API_URL}/api`;
+  // 🔥 PROTECT PAGE
+  if (localStorage.getItem("role") !== "author") {
+    return <div className="p-10">Access Denied ❌</div>;
+  }
 
   // 🔥 FETCH BOOKS
   useEffect(() => {
@@ -36,27 +43,6 @@ export default function AuthorDashboard() {
     };
 
     fetchSales();
-  }, []);
-
-  // 🔥 CHECK AUTHOR STATUS (single clean version)
-  useEffect(() => {
-    const checkAuthor = async () => {
-      try {
-        const res = await fetch(`${API}/admin/authors`);
-        const data = await res.json();
-
-        const approved = data.find((a: any) => a.status === "approved");
-
-        if (approved) {
-          localStorage.setItem("role", "author");
-          localStorage.removeItem("authorApplied");
-        }
-      } catch (err) {
-        console.error("AUTHOR ERROR:", err);
-      }
-    };
-
-    checkAuthor();
   }, []);
 
   // 🔥 CALCULATE EARNINGS
@@ -104,8 +90,9 @@ export default function AuthorDashboard() {
               className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition"
             >
 
+              {/* ✅ FIXED IMAGE */}
               <img
-                src={`http://localhost:3000/${b.cover}`}
+                src={`${API_URL}/${b.cover}`}
                 className="w-full h-40 object-cover rounded mb-2"
               />
 
