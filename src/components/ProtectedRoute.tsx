@@ -1,6 +1,6 @@
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import React from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -30,21 +30,22 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // 🔥 AUTHOR CHECK
-if (requireAuthor) {
-  return <>{children}</>;
-}
-  // 🔥 ADMIN CHECK (ONLY EMAIL)
+  // 🔥 AUTHOR CHECK (FIXED)
+  if (requireAuthor) {
+    if (profile?.role === "author" || profile?.role === "admin") {
+      return <>{children}</>;
+    } else {
+      return <Navigate to="/become-author" replace />;
+    }
+  }
+
+  // 🔥 ADMIN CHECK (EMAIL BASED)
   const ADMIN_EMAIL = "sanjaikumar87232@gmail.com";
 
   const userEmail = user?.email?.toLowerCase().trim();
   const adminEmail = ADMIN_EMAIL.toLowerCase().trim();
 
-  console.log("USER EMAIL:", userEmail);
-  console.log("ADMIN EMAIL:", adminEmail);
-
   if (requireAdmin && userEmail !== adminEmail) {
-    console.log("NOT ADMIN → redirect");
     return <Navigate to="/home" replace />;
   }
 

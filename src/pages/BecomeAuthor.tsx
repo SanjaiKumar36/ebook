@@ -1,6 +1,11 @@
 import { useState } from "react";
-import { getAuth } from "firebase/auth";
+import { useAuth } from "../context/AuthContext"; // ✅ IMPORTANT
+
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function BecomeAuthor() {
+  const { user } = useAuth(); // 🔥 get firebase user
+
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [category, setCategory] = useState("Development");
@@ -14,6 +19,11 @@ export default function BecomeAuthor() {
       return;
     }
 
+    if (!user) {
+      alert("Login required ❌");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -24,35 +34,31 @@ export default function BecomeAuthor() {
       formData.append("category", category);
       formData.append("experience", experience);
 
+      // 🔥 VERY IMPORTANT
+      formData.append("uid", user.uid);
+
       if (photo) {
         formData.append("photo", photo);
       }
 
-      const res = await fetch(
-        "https://ebook-fmjq.onrender.com/api/author/apply",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const res = await fetch(`${API_URL}/api/author/apply`, {
+        method: "POST",
+        body: formData,
+      });
 
       const data = await res.json();
 
       if (res.ok) {
         alert("Application Submitted 🚀");
 
-        // ✅ IMPORTANT FIX
+        // only track applied state
         localStorage.setItem("authorApplied", "true");
 
-        // ❌ REMOVE THIS (VERY IMPORTANT)
-        // localStorage.setItem("isAuthor", "true");
-
-        // Reset form
+        // reset form
         setName("");
         setBio("");
         setExperience("");
         setPhoto(null);
-
       } else {
         alert(data.error || "Upload failed ❌");
       }
@@ -82,7 +88,6 @@ export default function BecomeAuthor() {
         {/* PHOTO */}
         <div className="flex flex-col items-center mb-6">
           <label className="cursor-pointer">
-
             <div className="w-28 h-28 rounded-full bg-purple-100 flex items-center justify-center overflow-hidden border-4 border-purple-200">
 
               {photo ? (
@@ -116,20 +121,20 @@ export default function BecomeAuthor() {
             type="text"
             placeholder="Author Name"
             value={name}
-            className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-purple-500"
+            className="w-full p-3 border rounded-xl"
             onChange={(e) => setName(e.target.value)}
           />
 
           <textarea
             placeholder="Author Bio"
             value={bio}
-            className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-purple-500"
+            className="w-full p-3 border rounded-xl"
             rows={4}
             onChange={(e) => setBio(e.target.value)}
           />
 
           <select
-            className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-purple-500"
+            className="w-full p-3 border rounded-xl"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           >
@@ -143,17 +148,16 @@ export default function BecomeAuthor() {
             type="text"
             placeholder="Experience"
             value={experience}
-            className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-purple-500"
+            className="w-full p-3 border rounded-xl"
             onChange={(e) => setExperience(e.target.value)}
           />
 
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-xl font-semibold hover:scale-105 transition disabled:opacity-50"
+            className="w-full py-3 bg-purple-600 text-white rounded-xl"
           >
             {loading ? "Submitting..." : "Submit Application 🚀"}
-          ``
           </button>
 
         </div>

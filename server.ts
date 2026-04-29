@@ -8,7 +8,7 @@ import path from "path";
 const app = express();
 const PORT = 3000;
 
-// 🔥 RAZORPAY (MOVE TO ENV IN PRODUCTION)
+// 🔥 RAZORPAY
 const razorpay = new Razorpay({
   key_id: "rzp_test_SiWc6w5QCu6cpS",
   key_secret: "yKJefZk6QlPsRchT9l101hF3",
@@ -17,12 +17,12 @@ const razorpay = new Razorpay({
 app.use(cors());
 app.use(express.json());
 
-// ================= CREATE UPLOADS FOLDER =================
+// ================= CREATE UPLOADS =================
 if (!fs.existsSync("uploads")) {
   fs.mkdirSync("uploads");
 }
 
-// ================= SERVE FILES =================
+// ================= STATIC =================
 app.use(
   "/uploads",
   express.static(path.join(process.cwd(), "uploads"), {
@@ -39,7 +39,6 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + "-" + file.originalname);
   },
 });
-
 const upload = multer({ storage });
 
 // ================= HELPERS =================
@@ -59,12 +58,12 @@ const writeJSON = (file: string, data: any) => {
 // ================= ROUTER =================
 const apiRouter = express.Router();
 
-// ================= AUTHOR APPLY =================
+// ================= AUTHOR APPLY (🔥 FIXED WITH UID) =================
 apiRouter.post("/author/apply", upload.single("photo"), (req, res) => {
   try {
-    const { name, bio, category, experience } = req.body;
+    const { name, bio, category, experience, uid } = req.body;
 
-    if (!name || !bio || !category || !experience) {
+    if (!name || !bio || !category || !experience || !uid) {
       return res.status(400).json({ error: "Missing fields" });
     }
 
@@ -72,6 +71,7 @@ apiRouter.post("/author/apply", upload.single("photo"), (req, res) => {
 
     authors.push({
       id: Date.now(),
+      uid, // 🔥 VERY IMPORTANT
       name,
       bio,
       category,
@@ -176,14 +176,10 @@ apiRouter.get("/books", (_, res) => {
   res.json(books.filter((b: any) => b.status === "approved"));
 });
 
-// ================= RAZORPAY =================
+// ================= PAYMENT =================
 apiRouter.post("/create-order", async (req, res) => {
   try {
     const { amount } = req.body;
-
-    if (!amount) {
-      return res.status(400).json({ error: "Amount required" });
-    }
 
     const order = await razorpay.orders.create({
       amount: amount * 100,
@@ -199,11 +195,6 @@ apiRouter.post("/create-order", async (req, res) => {
 });
 
 // ================= REVIEWS =================
-apiRouter.get("/reviews/:bookId", (req, res) => {
-  const reviews = readJSON("reviews.json");
-  res.json(reviews.filter((r: any) => r.bookId == req.params.bookId));
-});
-
 apiRouter.post("/reviews", (req, res) => {
   const { bookId, user, comment, rating } = req.body;
 
@@ -230,7 +221,7 @@ apiRouter.post("/reviews", (req, res) => {
 apiRouter.post("/sale", (req, res) => {
   const { bookId } = req.body;
 
-  let sales = readJSON("sales.json");
+  const sales = readJSON("sales.json");
 
   sales.push({
     id: Date.now(),

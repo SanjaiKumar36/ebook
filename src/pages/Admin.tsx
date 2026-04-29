@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../lib/firebase"; // 🔥 your firebase config
 
 const API = import.meta.env.VITE_API_URL + "/api";
 
@@ -8,16 +10,24 @@ export default function AdminDashboard() {
 
   // 🔥 FETCH AUTHORS
   const fetchAuthors = async () => {
-    const res = await fetch(`${API}/admin/authors`);
-    const data = await res.json();
-    setAuthors(data);
+    try {
+      const res = await fetch(`${API}/admin/authors`);
+      const data = await res.json();
+      setAuthors(data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // 🔥 FETCH BOOKS
   const fetchBooks = async () => {
-    const res = await fetch(`${API}/admin/books`);
-    const data = await res.json();
-    setBooks(data);
+    try {
+      const res = await fetch(`${API}/admin/books`);
+      const data = await res.json();
+      setBooks(data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   useEffect(() => {
@@ -25,22 +35,40 @@ export default function AdminDashboard() {
     fetchBooks();
   }, []);
 
-  // 🔥 APPROVE AUTHOR
-  const approveAuthor = async (id: number) => {
-    await fetch(`${API}/admin/approve-author/${id}`, {
-      method: "POST",
-    });
+  // 🔥 APPROVE AUTHOR (🔥 FIXED)
+  const approveAuthor = async (author: any) => {
+    try {
+      // 1️⃣ backend approve
+      await fetch(`${API}/admin/approve-author/${author.id}`, {
+        method: "POST",
+      });
 
-    fetchAuthors();
+      // 2️⃣ 🔥 FIREBASE UPDATE (VERY IMPORTANT)
+      if (author.uid) {
+        await updateDoc(doc(db, "users", author.uid), {
+          role: "author",
+        });
+      }
+
+      alert("Author Approved ✅");
+
+      fetchAuthors();
+    } catch (err) {
+      console.error("APPROVE ERROR:", err);
+    }
   };
 
   // 🔥 APPROVE BOOK
   const approveBook = async (id: number) => {
-    await fetch(`${API}/admin/approve-book/${id}`, {
-      method: "POST",
-    });
+    try {
+      await fetch(`${API}/admin/approve-book/${id}`, {
+        method: "POST",
+      });
 
-    fetchBooks();
+      fetchBooks();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -83,7 +111,7 @@ export default function AdminDashboard() {
 
                 {a.status !== "approved" && (
                   <button
-                    onClick={() => approveAuthor(a.id)}
+                    onClick={() => approveAuthor(a)} // 🔥 pass full object
                     className="mt-3 bg-green-600 text-white px-4 py-2 rounded"
                   >
                     Approve
