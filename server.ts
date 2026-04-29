@@ -1,21 +1,12 @@
 import Razorpay from "razorpay";
 import express from "express";
 import cors from "cors";
-import fs from "fs";
 import multer from "multer";
 import path from "path";
 
-const app = express();
-const PORT = 3000;
+import fs from "fs";
 
-// 🔥 RAZORPAY
-const razorpay = new Razorpay({
-  key_id: "rzp_test_SiWc6w5QCu6cpS",
-  key_secret: "yKJefZk6QlPsRchT9l101hF3",
-});
-
-
-// 🔥 AUTO CREATE FILES
+// 🔥 AUTO CREATE FILES + FOLDER (RENDER FIX)
 const ensureFile = (file: string) => {
   if (!fs.existsSync(file)) {
     fs.writeFileSync(file, "[]");
@@ -27,10 +18,22 @@ ensureFile("books.json");
 ensureFile("reviews.json");
 ensureFile("sales.json");
 
-// 🔥 AUTO CREATE UPLOADS
+// 🔥 uploads folder create
 if (!fs.existsSync("uploads")) {
   fs.mkdirSync("uploads");
 }
+
+
+const app = express();
+const PORT = 3000;
+
+// 🔥 RAZORPAY
+const razorpay = new Razorpay({
+  key_id: "rzp_test_SiWc6w5QCu6cpS",
+  key_secret: "yKJefZk6QlPsRchT9l101hF3",
+});
+
+
 
 
 app.use(cors());
