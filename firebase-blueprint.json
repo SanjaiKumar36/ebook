@@ -1,0 +1,114 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "App user profile",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "author", "admin"] },
+        "about_author": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Book": {
+      "title": "Book",
+      "description": "eBook asset",
+      "type": "object",
+      "properties": {
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "category": { "type": "string" },
+        "coverUrl": { "type": "string" },
+        "pdfUrl": { "type": "string" },
+        "isPublished": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["authorId", "title", "price", "coverUrl"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Purchase record",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "items": { "type": "array", "items": { "type": "string" } },
+        "amount": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "success", "failed"] },
+        "razorpayOrderId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "items", "amount", "status"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "Book rating and comment",
+      "type": "object",
+      "properties": {
+        "bookId": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "rating": { "type": "number", "minimum": 1, "maximum": 5 },
+        "comment": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["bookId", "userId", "rating"]
+    },
+    "AuthorApplication": {
+      "title": "AuthorApplication",
+      "description": "Record of user becoming an author",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "bio": { "type": "string" },
+        "category": { "type": "string" },
+        "experience": { "type": "string" },
+        "appliedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "name", "email"]
+    }
+  },
+  "firestore": {
+    "pending_books": {
+      "schema": "Book",
+      "description": "Books awaiting admin approval"
+    },
+    "users": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "books": {
+      "schema": "Book",
+      "description": "Available eBooks"
+    },
+    "orders": {
+      "schema": "Order",
+      "description": "Customer orders"
+    },
+    "reviews": {
+      "schema": "Review",
+      "description": "Book reviews"
+    },
+    "author_applications": {
+      "schema": "AuthorApplication",
+      "description": "History of author signups"
+    },
+    "users/{userId}/wishlist": {
+      "schema": "Book",
+      "description": "User wishlist items"
+    },
+    "users/{userId}/library": {
+      "schema": "Book",
+      "description": "Books purchased by user"
+    }
+  }
+}

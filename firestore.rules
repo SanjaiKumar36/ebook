@@ -1,0 +1,89 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function isAuthor() {
+      return isSignedIn() && getUserData().role == 'author';
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && getUserData().role == 'admin';
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    match /test/connection {
+      allow read: if true;
+    }
+
+    // Books
+    match /books/{bookId} {
+      allow read: if true;
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    // Pending Books
+    match /pending_books/{bookId} {
+      allow read: if isAdmin() || (isSignedIn() && exists(/databases/$(database)/documents/pending_books/$(bookId)) && get(/databases/$(database)/documents/pending_books/$(bookId)).data.authorId == request.auth.uid);
+      allow list: if isAdmin();
+      allow create: if isAuthor();
+      allow update, delete: if isAdmin() || (isSignedIn() && resource.data.authorId == request.auth.uid);
+    }
+
+    // Users
+    match /users/{userId} {
+      allow get: if true; // Safe to know if a user exists
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) && 
+                      (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']) || 
+                       (resource.data.role == 'user' && request.resource.data.role == 'author')); // Allow upgrading to author
+      
+      // Subcollections
+      match /wishlist/{wishId} {
+        allow read, write: if isOwner(userId);
+      }
+      match /library/{bookId} {
+        allow read: if isOwner(userId);
+        allow write: if isAdmin(); // Server usually handles setting purchased books
+      }
+    }
+
+    // Orders
+    match /orders/{orderId} {
+      allow get: if isOwner(resource.data.userId) || isAdmin();
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin(); // Only server can success/fail orders
+    }
+
+    // Reviews
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isSignedIn(); // Add check if they bought it if possible, but keep simple for now
+      allow update, delete: if isOwner(resource.data.userId) || isAdmin();
+    }
+
+    // Author Applications (Log)
+    match /author_applications/{appId} {
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow read: if isAdmin();
+    }
+  }
+}

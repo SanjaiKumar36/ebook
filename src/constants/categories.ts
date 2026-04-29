@@ -1,0 +1,35 @@
+import { 
+  Code, Briefcase, TrendingUp, User, Brain, Heart, FlaskConical, Binary, 
+  Cpu, Shield, Globe, Smartphone, GraduationCap, School, Book, BookOpen, 
+  History, Feather, Palette, Compass, Star, Smile, Zap, Database, Atom, Sparkles 
+} from 'lucide-react';
+
+export const CATEGORIES = [
+  { id: 'programming', name: 'Programming & Technology', icon: Code },
+  { id: 'business', name: 'Business & Entrepreneurship', icon: Briefcase },
+  { id: 'finance', name: 'Finance & Investing', icon: TrendingUp },
+  { id: 'self-development', name: 'Self-Development', icon: User },
+  { id: 'psychology', name: 'Psychology', icon: Brain },
+  { id: 'health', name: 'Health & Fitness', icon: Heart },
+  { id: 'science', name: 'Science', icon: FlaskConical },
+  { id: 'mathematics', name: 'Mathematics', icon: Binary },
+  { id: 'engineering', name: 'Engineering', icon: Cpu },
+  { id: 'ai', name: 'Artificial Intelligence', icon: Atom },
+  { id: 'data-science', name: 'Data Science', icon: Database },
+  { id: 'cybersecurity', name: 'Cybersecurity', icon: Shield },
+  { id: 'web-dev', name: 'Web Development', icon: Globe },
+  { id: 'mobile-dev', name: 'Mobile Development', icon: Smartphone },
+  { id: 'exam-prep', name: 'Exam Preparation', icon: GraduationCap },
+  { id: 'school', name: 'School Education', icon: School },
+  { id: 'college', name: 'College Textbooks', icon: Book },
+  { id: 'fiction', name: 'Fiction', icon: Feather },
+  { id: 'non-fiction', name: 'Non-Fiction', icon: BookOpen },
+  { id: 'biography', name: 'Biography', icon: Palette },
+  { id: 'history', name: 'History', icon: History },
+  { id: 'philosophy', name: 'Philosophy', icon: Compass },
+  { id: 'spirituality', name: 'Spirituality', icon: Star },
+  { id: 'tamil-lit', name: 'Tamil Literature', icon: Sparkles },
+  { id: 'english-lit', name: 'English Literature', icon: Feather },
+  { id: 'kids', name: 'Kids & Story Books', icon: Smile },
+  { id: 'comics', name: 'Comics & Graphic Novels', icon: Zap },
+];
