@@ -167,8 +167,9 @@ app.get("/api/sales", (req, res) => {
 });
 
 // ================= TEST =================
-app.get("/test", (req, res) => {
-  res.send("WORKING 🔥");
+app.get("/api/authors", (req, res) => {
+  const authors = readJSON("authors.json");
+  res.json(authors);
 });
 
 // ================= START =================

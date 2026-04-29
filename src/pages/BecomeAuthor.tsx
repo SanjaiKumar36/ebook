@@ -8,7 +8,7 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 
-// 🔥 AUTO CREATE FILES
+// ================= AUTO CREATE FILE =================
 const ensureFile = (file: string) => {
   if (!fs.existsSync(file)) {
     fs.writeFileSync(file, "[]");
@@ -17,27 +17,32 @@ const ensureFile = (file: string) => {
 
 ensureFile("authors.json");
 
-// 🔥 AUTHOR APPLY (NO FILE UPLOAD)
+// ================= HELPERS =================
+const readAuthors = () => {
+  try {
+    return JSON.parse(fs.readFileSync("authors.json", "utf-8"));
+  } catch {
+    return [];
+  }
+};
+
+const writeAuthors = (data: any) => {
+  fs.writeFileSync("authors.json", JSON.stringify(data, null, 2));
+};
+
+// ================= AUTHOR APPLY =================
 app.post("/api/author/apply", (req, res) => {
   try {
     console.log("BODY:", req.body);
 
-    const name = req.body.name;
-    const bio = req.body.bio;
-    const category = req.body.category;
-    const experience = req.body.experience;
-    const uid = req.body.uid;
+    const { name, bio, category, experience, uid } = req.body;
 
     // 🔥 VALIDATION
     if (!name || !bio || !category || !experience || !uid) {
       return res.status(400).json({ error: "Missing fields ❌" });
     }
 
-    let authors = [];
-
-    if (fs.existsSync("authors.json")) {
-      authors = JSON.parse(fs.readFileSync("authors.json", "utf-8"));
-    }
+    const authors = readAuthors();
 
     authors.push({
       id: Date.now(),
@@ -50,7 +55,7 @@ app.post("/api/author/apply", (req, res) => {
       status: "pending",
     });
 
-    fs.writeFileSync("authors.json", JSON.stringify(authors, null, 2));
+    writeAuthors(authors);
 
     res.json({ success: true });
 
@@ -60,15 +65,18 @@ app.post("/api/author/apply", (req, res) => {
   }
 });
 
-// 🔥 TEST ROUTE
+// ================= GET AUTHORS =================
 app.get("/api/authors", (req, res) => {
-  const data = fs.existsSync("authors.json")
-    ? JSON.parse(fs.readFileSync("authors.json", "utf-8"))
-    : [];
-
-  res.json(data);
+  const authors = readAuthors();
+  res.json(authors);
 });
 
+// ================= TEST =================
+app.get("/test", (req, res) => {
+  res.send("WORKING 🔥");
+});
+
+// ================= START =================
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
