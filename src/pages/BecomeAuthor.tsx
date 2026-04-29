@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useAuth } from "../context/AuthContext"; // ✅ IMPORTANT
+import { useAuth } from "../context/AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function BecomeAuthor() {
-  const { user } = useAuth(); // 🔥 get firebase user
+  const { user } = useAuth();
 
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
@@ -24,37 +24,50 @@ export default function BecomeAuthor() {
       return;
     }
 
+    // 🔥 IMAGE SIZE CHECK (IMPORTANT)
+    if (photo && photo.size > 2 * 1024 * 1024) {
+      alert("Image too large ❌ (Max 2MB)");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const formData = new FormData();
+      console.log("Submitting...");
 
+      const formData = new FormData();
       formData.append("name", name);
       formData.append("bio", bio);
       formData.append("category", category);
       formData.append("experience", experience);
-
-      // 🔥 VERY IMPORTANT
       formData.append("uid", user.uid);
 
       if (photo) {
         formData.append("photo", photo);
       }
 
+      // 🔥 TIMEOUT FIX (NO HANG)
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 20000);
+
       const res = await fetch(`${API_URL}/api/author/apply`, {
         method: "POST",
         body: formData,
+        signal: controller.signal,
       });
 
+      clearTimeout(timeout);
+
       const data = await res.json();
+
+      console.log("Response received");
 
       if (res.ok) {
         alert("Application Submitted 🚀");
 
-        // only track applied state
         localStorage.setItem("authorApplied", "true");
 
-        // reset form
+        // RESET FORM
         setName("");
         setBio("");
         setExperience("");
@@ -63,9 +76,15 @@ export default function BecomeAuthor() {
         alert(data.error || "Upload failed ❌");
       }
 
-    } catch (err) {
-      console.error(err);
-      alert("Server error ❌");
+    } catch (err: any) {
+      console.error("ERROR:", err);
+
+      if (err.name === "AbortError") {
+        alert("Server taking too long ⏳ (try again)");
+      } else {
+        alert("Server error ❌");
+      }
+
     } finally {
       setLoading(false);
     }
@@ -110,7 +129,7 @@ export default function BecomeAuthor() {
           </label>
 
           <p className="text-xs text-gray-400 mt-2">
-            Upload profile photo
+            Max size: 2MB
           </p>
         </div>
 
@@ -155,12 +174,15 @@ export default function BecomeAuthor() {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full py-3 bg-purple-600 text-white rounded-xl"
+            className={`w-full py-3 rounded-xl text-white ${
+              loading ? "bg-gray-400" : "bg-purple-600 hover:scale-105"
+            }`}
           >
             {loading ? "Submitting..." : "Submit Application 🚀"}
           </button>
 
         </div>
+
       </div>
     </div>
   );
